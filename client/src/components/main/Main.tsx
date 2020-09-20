@@ -1,12 +1,13 @@
 import * as React from 'react';
 
-import { Container, Row, Col, Input } from 'reactstrap';
+import { Container, Row, Col } from 'reactstrap';
 
 import { Helmet } from 'react-helmet';
 
 import { DEFAULT_PAGE_TITLE, PAGE_TITLE_TEMPLATE } from '../../util/util';
 import FileUpload from '../file-upload/FileUpload';
-import JsonPane from '../json-pane/JsonPane';
+import JsonPane from '../json-pane/JsonPane'
+import JsonPathExpr from '../json-path-expr/JsonPathExpr';
 
 
 import './Main.css';
@@ -34,7 +35,7 @@ function Main(): JSX.Element {
           </Row>
           <Row>
            <Col>
-              <Input type="text" className="w-100" defaultValue="JSON Path" />
+              <JsonPathExpr />
             </Col>
           </Row>
           <Row>

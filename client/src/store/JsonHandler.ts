@@ -111,7 +111,7 @@ export const reducer: Reducer<IJsonState> = (
       return { ...state, json: incomingAction.json };
     }
     case ActionTypeEnum.JsonSetPathExpr: {
-      return { ...state, jsonStr: incomingAction.pathExpr };
+      return { ...state, pathExpr: incomingAction.pathExpr };
     }
     default:
       // Do nothing - the final return will work

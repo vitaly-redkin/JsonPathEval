@@ -52,6 +52,7 @@ function FileUpload(props: OwnProps): JSX.Element {
              className="w-100" 
              accept="application/json" 
              onChange={changeHandler}
+             tabIndex={2}
       />
     );
   }
@@ -66,4 +67,4 @@ function mapStateToProps(state: IApplicationState): IOwnProps {
   };
 }
 
-export default connect(mapStateToProps, actionCreators)(FileUpload,);
+export default connect(mapStateToProps, actionCreators)(FileUpload);
