@@ -1,7 +1,7 @@
 /**
  * Module to contain application defaults.
  */
-import { JsonModel } from '../models/JsonModel';
+import { JsonModel, JsonProcessingStatus } from '../models/JsonModel';
 
 // Default JSON string to use
 const defaultJsonStr: string = `
@@ -55,13 +55,16 @@ const defaultJsonObj: object = JSON.parse(defaultJsonStr);
 
 
 // Default JSON Path expression 
-const defaultPathExpr: string = '$..[?(@.price<10)]';
+const defaultPathExpr: string = '';
 
 /**
  * Default common state.
  */
 export const defaultJson: JsonModel = new JsonModel(
+  JsonProcessingStatus.Idle,
   defaultJsonStr,
   defaultJsonObj,
   defaultPathExpr,
+  [],
+  '',
 );

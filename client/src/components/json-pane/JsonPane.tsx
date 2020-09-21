@@ -2,9 +2,8 @@ import * as React from 'react';
 
 import { connect } from 'react-redux';
 import JSONTree from 'react-json-tree';
-import { JSONPath } from 'jsonpath-plus';
 
-import { IApplicationState } from '../../store';
+import { IApplicationState, actionCreators } from '../../store';
 
 import './JsonPane.css';
 
@@ -12,15 +11,14 @@ import './JsonPane.css';
  * Interface for the component own props.
  */
 interface IOwnProps{
-  jsonStr: string;
   json: object;
-  pathExpr: string;
+  selectedPointers: string[];
 }
 
 /**
  * Composite type for the component properties.
  */
-type OwnProps = IOwnProps;
+type OwnProps = IOwnProps & typeof actionCreators;
 
 /**
  * Composes JSONTree node key path parts into JSONPath-compatible pointer.
@@ -37,20 +35,32 @@ function composePointer(keyPath: React.ReactText[]): string {
   ) + '/';
 }
 
+// Sample JSONTree theme (without it an inversion does not work)
+const theme = {
+  scheme: 'monokai',
+  author: 'wimer hazenberg (http://www.monokai.nl)',
+  base00: '#272822',
+  base01: '#383830',
+  base02: '#49483e',
+  base03: '#75715e',
+  base04: '#a59f85',
+  base05: '#f8f8f2',
+  base06: '#f5f4f1',
+  base07: '#f9f8f5',
+  base08: '#f92672',
+  base09: '#fd971f',
+  base0A: '#f4bf75',
+  base0B: '#a6e22e',
+  base0C: '#a1efe4',
+  base0D: '#66d9ef',
+  base0E: '#ae81ff',
+  base0F: '#cc6633',
+};
+
 /**
  * The component to show JSON evaluation results.
  */
 function JsonPane(props: OwnProps): JSX.Element {
-  const t1 = new Date().getTime();     
-  const selectedPointers: string[] = (JSONPath({
-    path: props.pathExpr, 
-    json: props.json,
-    resultType: 'pointer',
-  }) as string[]).map(p => `${p}/`)
-  const t2 = new Date().getTime();     
-  console.log(`${selectedPointers.length} pointers found in ${t2 - t1}ms`);
-  //console.log(selectedPointers);
-
   /**
    * Returns class name to use with JSONTree labels and values.
    * 
@@ -58,7 +68,7 @@ function JsonPane(props: OwnProps): JSX.Element {
    */
   const getClassName = (keyPath: React.ReactText[]): string => {
     const pointer: string = composePointer(keyPath);
-    return (selectedPointers.find(p => pointer.startsWith(p)) ? 'selected' : '');
+    return (props.selectedPointers.find(p => pointer.startsWith(p)) ? 'selected' : '');
   }
  
   /***
@@ -89,6 +99,7 @@ function JsonPane(props: OwnProps): JSX.Element {
       <div className="w-100 json-pane">
         <JSONTree 
           data={props.json}
+          theme={theme}
           invertTheme={true}
           labelRenderer={labelRenderer}
           valueRenderer={valueRenderer}
@@ -104,10 +115,9 @@ function JsonPane(props: OwnProps): JSX.Element {
 // Redux mapStateToProps function
 function mapStateToProps(state: IApplicationState): IOwnProps {
   return {
-    jsonStr: state.json.jsonStr,
     json: state.json.json,
-    pathExpr: state.json.pathExpr,
+    selectedPointers: state.json.selectedPointers,
   };
 }
 
-export default connect(mapStateToProps)(JsonPane,);
+export default connect(mapStateToProps, actionCreators)(JsonPane,);

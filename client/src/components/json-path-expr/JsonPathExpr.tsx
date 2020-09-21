@@ -1,11 +1,13 @@
 import * as React from 'react';
 
 import { connect } from 'react-redux';
-import { Input } from 'reactstrap';
+import { Input, InputGroup, InputGroupAddon, Button } from 'reactstrap';
 import * as lodash from 'lodash';
+import { JSONPath } from 'jsonpath-plus';
 
 import { IApplicationState, actionCreators } from '../../store';
 import { useSafeState as useState, useSafeCallback as useCallback } from '../utils/custom-hooks/CustomHooks';
+import { JsonProcessingStatus } from '../../models/JsonModel';
 
 import './JsonPathExpr.css';
 
@@ -14,6 +16,7 @@ import './JsonPathExpr.css';
  */
 interface IOwnProps {
   pathExpr: string;
+  json: object;
 }
 
 /**
@@ -26,9 +29,20 @@ type OwnProps = IOwnProps & typeof actionCreators;
  * The component to show JSON evaluation results.
  */
 function JsonPathExpr(props: OwnProps): JSX.Element {
-  const { jsonSetPathExpr } = props;
+  const { jsonSetPathExpr, jsonSetStatus, jsonSetError, jsonSetSearchResult } = props;
 
   const [pathExpr, setPathExpr] = useState<string>(props.pathExpr);
+
+  const inputRef = React.useRef<HTMLInputElement>(null);
+
+  React.useEffect(
+    (): void => {
+      if (inputRef && inputRef.current) {
+        inputRef.current.focus();
+      }
+    },
+    []
+  )
 
   /**
    * Callback to set the path expression state value.
@@ -43,7 +57,7 @@ function JsonPathExpr(props: OwnProps): JSX.Element {
   );
 
   /**
-   * Does he JSON path search.
+   * Does the JSON path search.
    * 
    * @param path JSON path to search with
    */
@@ -51,10 +65,55 @@ function JsonPathExpr(props: OwnProps): JSX.Element {
     lodash.debounce(
       (path: string): void => {
         jsonSetPathExpr(path);
+        jsonSetStatus(JsonProcessingStatus.SearchingJson);
+
+        setTimeout(
+          () => {
+            try {
+              const t1 = new Date().getTime();     
+              const sp: string[] = (JSONPath({
+                path: props.pathExpr, 
+                json: props.json,
+                resultType: 'pointer',
+              }) as string[]).map(p => `${p}/`);
+              const t2 = new Date().getTime();     
+              console.log(`${sp.length} pointers found in ${t2 - t1}ms`);
+              //console.log(sp);
+              jsonSetSearchResult(sp);
+              jsonSetError('');
+            } catch (e) {
+              jsonSetError(`Error searching in JSON: ${e}`);
+            }
+            jsonSetStatus(JsonProcessingStatus.Idle);
+          }, 100
+        );
       },
       300
     ),
-    [jsonSetPathExpr]
+    [props.pathExpr, props.json, jsonSetPathExpr, jsonSetStatus, jsonSetError, jsonSetSearchResult]
+  );
+
+  /**
+   * Triggers the JSON path search.
+   */
+  const search = useCallback(
+    (): void => {
+      doSearch(pathExpr.trim());
+    },
+    [doSearch, pathExpr]
+  );
+
+
+  /**
+   * Sets a sample path expresssion.
+   */
+  const setSampleExpr = useCallback(
+    (): void => {
+      const samplePathExpr: string = '$..[?(@.price<10)]';
+      setPathExpr(samplePathExpr);
+      doSearch(samplePathExpr);
+    },
+    [doSearch]
   );
 
   /**
@@ -62,25 +121,33 @@ function JsonPathExpr(props: OwnProps): JSX.Element {
    */
   React.useEffect(
     (): void => {
-      doSearch(pathExpr.trim());
+      search();
     },
-    [pathExpr, doSearch]
+    [search, props.pathExpr]
   )
-
 
   /**
    * Component render function.
    */
   const render = (): JSX.Element => {
     return (
-      <Input 
-        type="text" 
-        className="w-100" 
-        value={pathExpr}
-        onChange={changeHandler}
-        tabIndex={1}
-      />
-
+      <InputGroup className="w-100">
+        <Input 
+          type="text" 
+          value={pathExpr}
+          onChange={changeHandler}
+          tabIndex={1}
+          placeholder="JSON Path Expression like $..[?(@.price<10)]"
+          innerRef={inputRef}
+          
+        />
+        <InputGroupAddon addonType="append">
+          <Button onClick={setSampleExpr} color="secondary" outline={true} tabIndex={3}>Use Sample</Button>
+        </InputGroupAddon>
+        <InputGroupAddon addonType="append">
+          <Button onClick={search} color="primary" tabIndex={2}>Search</Button>
+        </InputGroupAddon>
+      </InputGroup>
     );
   }
 
@@ -92,6 +159,7 @@ function JsonPathExpr(props: OwnProps): JSX.Element {
 function mapStateToProps(state: IApplicationState): IOwnProps {
   return {
     pathExpr: state.json.pathExpr,
+    json: state.json.json,
   };
 }
 
