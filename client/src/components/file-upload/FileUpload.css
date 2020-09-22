@@ -1,0 +1,3 @@
+.json-file-upload > input {
+  max-width: calc(100% - 100px);
+}

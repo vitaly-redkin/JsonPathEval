@@ -1,0 +1,12 @@
+.main > .row {
+  margin-top: 0.5em;
+}
+
+.main label {
+  padding-right: 0.5em;
+  font-weight: bold;
+}
+
+.main.busy {
+  cursor: wait;
+}
