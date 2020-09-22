@@ -191,8 +191,6 @@ export const reducer: Reducer<IJsonState> = (
       return { 
         ...state, 
         error: incomingAction.error, 
-        jsonStr: (hasError ? '' : state.jsonStr),
-        json: (hasError ? {} : state.json),
         selectedPointers: (hasError ? [] : state.selectedPointers),
         status: (hasError ? JsonProcessingStatus.Idle : state.status),
       };

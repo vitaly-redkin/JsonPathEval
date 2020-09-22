@@ -24,19 +24,20 @@ type OwnProps = IOwnProps;
 /**
  * The component to show JSON evaluation results.
  */
-function StatusPanel(props: OwnProps): JSX.Element | null {
+function StatusPanel(props: OwnProps): JSX.Element {
   /**
    * Component render function.
    */
-  const render = (): JSX.Element | null => {
+  const render = (): JSX.Element => {
     let message: string = props.status;
     let alertColor: string = 'info';
     if (props.error) {
       message = props.error;
       alertColor = 'danger';
     } else if (props.status === JsonProcessingStatus.Idle) {
-      return null;
-    }
+      message = 'Select JSON file and enter a JSON Path expression (or copy a sample one)';
+      alertColor = 'success';
+    }   
 
     return (
       <Row>

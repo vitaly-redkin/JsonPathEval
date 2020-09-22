@@ -1,5 +1,5 @@
 .json-pane {
-  height: calc(100vh - 170px);
+  height: calc(100vh - 240px);
   overflow: auto;
   border: 1px solid #ced4da;
   border-radius: 0.25rem;

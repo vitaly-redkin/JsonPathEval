@@ -48,13 +48,16 @@ function FileUpload(props: OwnProps): JSX.Element {
               jsonSetObject(json);
             } catch (e) {
               jsonSetError(`File parsing error: ${e}`);
+              jsonSetObject({});
             }
             jsonSetStatus(JsonProcessingStatus.Idle);
           }
 
           fileReader.onerror = (): void => {
             jsonSetError(`File loading error: ${fileReader.error}`);
-          }
+            jsonSetString('');
+            jsonSetObject({});
+        }
 
           setTimeout(() => { fileReader.readAsText(file); }, 100);
         }, 100);

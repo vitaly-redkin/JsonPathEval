@@ -64,20 +64,21 @@ function JsonPathExpr(props: OwnProps): JSX.Element {
   const doSearch = useCallback(
     lodash.debounce(
       (path: string): void => {
+        //console.log(`doSearch - <${path}>`);
         jsonSetPathExpr(path);
         jsonSetStatus(JsonProcessingStatus.SearchingJson);
 
         setTimeout(
           () => {
             try {
-              const t1 = new Date().getTime();     
+              //const t1 = new Date().getTime();   
               const sp: string[] = (JSONPath({
-                path: props.pathExpr, 
+                path: path, 
                 json: props.json,
                 resultType: 'pointer',
               }) as string[]).map(p => `${p}/`);
-              const t2 = new Date().getTime();     
-              console.log(`${sp.length} pointers found in ${t2 - t1}ms`);
+              //const t2 = new Date().getTime();     
+              //console.log(`<${path}> ${sp.length} pointers found in ${t2 - t1}ms`);
               //console.log(sp);
               jsonSetSearchResult(sp);
               jsonSetError('');
@@ -85,12 +86,12 @@ function JsonPathExpr(props: OwnProps): JSX.Element {
               jsonSetError(`Error searching in JSON: ${e}`);
             }
             jsonSetStatus(JsonProcessingStatus.Idle);
-          }, 100
+          }, 200
         );
-      },
-      300
+      }
+      , 2000
     ),
-    [props.pathExpr, props.json, jsonSetPathExpr, jsonSetStatus, jsonSetError, jsonSetSearchResult]
+    [props.json, jsonSetPathExpr, jsonSetStatus, jsonSetError, jsonSetSearchResult]
   );
 
   /**
@@ -98,6 +99,7 @@ function JsonPathExpr(props: OwnProps): JSX.Element {
    */
   const search = useCallback(
     (): void => {
+      //console.log(`search - <${pathExpr}>`);
       doSearch(pathExpr.trim());
     },
     [doSearch, pathExpr]
@@ -111,9 +113,8 @@ function JsonPathExpr(props: OwnProps): JSX.Element {
     (): void => {
       const samplePathExpr: string = '$..[?(@.price<10)]';
       setPathExpr(samplePathExpr);
-      doSearch(samplePathExpr);
     },
-    [doSearch]
+    []
   );
 
   /**
@@ -123,7 +124,7 @@ function JsonPathExpr(props: OwnProps): JSX.Element {
     (): void => {
       search();
     },
-    [search, props.pathExpr]
+    [search, pathExpr]
   )
 
   /**

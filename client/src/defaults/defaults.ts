@@ -44,7 +44,7 @@ const defaultJsonStr: string = `
   `;
 
 // Number of times to repeat book array - to provide large-enough sample data
-const COUNT: number = 1000;
+const COUNT: number = 300;
 
 // Default JSON object to use
 const defaultJsonObj: object = JSON.parse(defaultJsonStr);
